@@ -2,26 +2,142 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+    --vmk-green: #0b3d2e;
+    --vmk-green-foreground: #fafaf7;
+    --vmk-lime: #c6f432;
+    --vmk-lime-foreground: #0b3d2e;
+    --vmk-cream: #fafaf7;
+    --vmk-ink: #0a1f18;
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+    --background: #fafaf7;
+    --foreground: #0a1f18;
+    --card: #ffffff;
+    --card-foreground: #0a1f18;
+    --popover: #ffffff;
+    --popover-foreground: #0a1f18;
+    --primary: #0b3d2e;
+    --primary-foreground: #fafaf7;
+    --secondary: #e8f0ec;
+    --secondary-foreground: #0b3d2e;
+    --muted: #eef2ef;
+    --muted-foreground: #4a6358;
+    --accent: #c6f432;
+    --accent-foreground: #0b3d2e;
+    --destructive: #c62828;
+    --border: #d5e0da;
+    --input: #d5e0da;
+    --ring: #0b3d2e;
+    --chart-1: #0b3d2e;
+    --chart-2: #c6f432;
+    --chart-3: #2d6a4f;
+    --chart-4: #95d5b2;
+    --chart-5: #1b4332;
+    --radius: 0.625rem;
+    --sidebar: #0b3d2e;
+    --sidebar-foreground: #fafaf7;
+    --sidebar-primary: #c6f432;
+    --sidebar-primary-foreground: #0b3d2e;
+    --sidebar-accent: #135239;
+    --sidebar-accent-foreground: #fafaf7;
+    --sidebar-border: #135239;
+    --sidebar-ring: #c6f432;
+  }
+
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  .animate-fade-up {
+    animation: fade-up 0.7s ease-out both;
+  }
+
+  .animation-delay-100 {
+    animation-delay: 100ms;
+  }
+
+  .animation-delay-200 {
+    animation-delay: 200ms;
+  }
+
+  .animation-delay-300 {
+    animation-delay: 300ms;
+  }
+
+  .animation-delay-400 {
+    animation-delay: 400ms;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hero-ken {
+  from {
+    transform: scale(1.05);
+  }
+  to {
+    transform: scale(1.12);
+  }
+}
+
+@keyframes accordion-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--accordion-panel-height, auto);
+  }
+}
+
+@keyframes accordion-up {
+  from {
+    height: var(--accordion-panel-height, auto);
+  }
+  to {
+    height: 0;
+  }
+}
+
+@layer utilities {
+  .animate-hero-ken {
+    animation: hero-ken 22s ease-out forwards;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up,
+  .animate-hero-ken {
+    animation: none;
+  }
+
+  html {
+    scroll-behavior: auto;
   }
 }

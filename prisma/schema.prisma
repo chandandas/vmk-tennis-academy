@@ -1,0 +1,402 @@
+// VMK Tennis Academy — Prisma schema
+// SQLite locally; switch provider to "postgresql" for production.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum Role {
+  ADMIN
+  COACH
+  FRONT_DESK
+}
+
+enum LeadStage {
+  NEW
+  CONTACTED
+  TRIAL_SCHEDULED
+  TRIAL_COMPLETED
+  ENROLLED
+  LOST
+}
+
+enum LeadSource {
+  TRIAL_BOOKING
+  ENQUIRY
+  WALK_IN
+  REFERRAL
+  SOCIAL
+  OTHER
+}
+
+enum StudentStatus {
+  ACTIVE
+  PAUSED
+  LEFT
+}
+
+enum TimeSlot {
+  MORNING
+  EVENING
+}
+
+enum PaymentMethod {
+  CASH
+  UPI
+  BANK
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum FeeInterval {
+  MONTHLY
+  QUARTERLY
+}
+
+enum GalleryCategory {
+  TRAINING
+  TOURNAMENTS
+  EVENTS
+  FACILITIES
+}
+
+enum DayOfWeek {
+  MON
+  TUE
+  WED
+  THU
+  FRI
+  SAT
+  SUN
+}
+
+// ─── Auth / Staff ────────────────────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         Role     @default(FRONT_DESK)
+  phone        String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  coachProfile Coach?
+  assignedLeads Lead[]          @relation("AssignedLeads")
+  leadNotes     LeadNote[]
+  followUps     FollowUp[]
+  progressNotes ProgressNote[]
+  attendanceMarked AttendanceRecord[] @relation("MarkedBy")
+}
+
+model Coach {
+  id             String   @id @default(cuid())
+  userId         String?  @unique
+  user           User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  name           String
+  slug           String   @unique
+  photoUrl       String?
+  certifications String?  // JSON array or comma-separated
+  playingBackground String?
+  specialization String?
+  bio            String?
+  isPublished    Boolean  @default(false)
+  sortOrder      Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  batches            Batch[]
+  trialAppointments  TrialAppointment[]
+}
+
+// ─── CRM: Leads ──────────────────────────────────────────────────────────────
+
+model Lead {
+  id              String     @id @default(cuid())
+  parentName      String?
+  playerName      String
+  phone           String
+  email           String?
+  playerAge       Int?
+  programInterest String?
+  preferredSlot   TimeSlot?
+  message         String?
+  source          LeadSource @default(ENQUIRY)
+  stage           LeadStage  @default(NEW)
+  lostReason      String?
+  assignedToId    String?
+  assignedTo      User?      @relation("AssignedLeads", fields: [assignedToId], references: [id], onDelete: SetNull)
+  programId       String?
+  program         Program?   @relation(fields: [programId], references: [id], onDelete: SetNull)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  notes             LeadNote[]
+  followUps         FollowUp[]
+  trialAppointments TrialAppointment[]
+  student           Student?
+}
+
+model LeadNote {
+  id        String   @id @default(cuid())
+  leadId    String
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  authorId  String?
+  author    User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  body      String
+  createdAt DateTime @default(now())
+}
+
+model FollowUp {
+  id          String    @id @default(cuid())
+  leadId      String
+  lead        Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  assignedToId String?
+  assignedTo  User?     @relation(fields: [assignedToId], references: [id], onDelete: SetNull)
+  dueAt       DateTime
+  note        String?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+}
+
+model TrialAppointment {
+  id        String   @id @default(cuid())
+  leadId    String
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  batchId   String?
+  batch     Batch?   @relation(fields: [batchId], references: [id], onDelete: SetNull)
+  coachId   String?
+  coach     Coach?   @relation(fields: [coachId], references: [id], onDelete: SetNull)
+  scheduledAt DateTime
+  completed Boolean  @default(false)
+  notes     String?
+  createdAt DateTime @default(now())
+}
+
+// ─── Students ────────────────────────────────────────────────────────────────
+
+model Student {
+  id               String        @id @default(cuid())
+  leadId           String?       @unique
+  lead             Lead?         @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  playerName       String
+  dateOfBirth      DateTime?
+  phone            String?
+  email            String?
+  emergencyContact String?
+  medicalNotes     String?
+  status           StudentStatus @default(ACTIVE)
+  joinDate         DateTime      @default(now())
+  programId        String?
+  program          Program?      @relation(fields: [programId], references: [id], onDelete: SetNull)
+  batchId          String?
+  batch            Batch?        @relation(fields: [batchId], references: [id], onDelete: SetNull)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  guardians     Guardian[]
+  enrollments   Enrollment[]
+  attendance    AttendanceRecord[]
+  payments      Payment[]
+  progressNotes ProgressNote[]
+  documents     StudentDocument[]
+}
+
+model Guardian {
+  id        String  @id @default(cuid())
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  name      String
+  phone     String
+  email     String?
+  relation  String? // father, mother, etc.
+}
+
+model ProgressNote {
+  id        String   @id @default(cuid())
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  authorId  String?
+  author    User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  body      String
+  createdAt DateTime @default(now())
+}
+
+model StudentDocument {
+  id        String   @id @default(cuid())
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  title     String
+  fileUrl   String
+  createdAt DateTime @default(now())
+}
+
+// ─── Programs / Batches ──────────────────────────────────────────────────────
+
+model Program {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  ageGroup    String?
+  focusAreas  String?  // JSON or comma-separated
+  sessionsPerWeek Int?
+  description String?
+  curriculum  String?
+  isPublished Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  feePlans  FeePlan[]
+  batches   Batch[]
+  leads     Lead[]
+  students  Student[]
+  enrollments Enrollment[]
+}
+
+model Batch {
+  id        String   @id @default(cuid())
+  name      String
+  programId String
+  program   Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
+  coachId   String?
+  coach     Coach?   @relation(fields: [coachId], references: [id], onDelete: SetNull)
+  daysOfWeek String  // JSON array e.g. ["MON","WED","FRI"]
+  timeSlot  TimeSlot
+  startTime String   // "06:00"
+  endTime   String   // "07:30"
+  court     String?
+  capacity  Int      @default(8)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  students          Student[]
+  enrollments       Enrollment[]
+  attendance        AttendanceRecord[]
+  trialAppointments TrialAppointment[]
+}
+
+model Enrollment {
+  id        String   @id @default(cuid())
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  programId String
+  program   Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
+  batchId   String?
+  batch     Batch?   @relation(fields: [batchId], references: [id], onDelete: SetNull)
+  startDate DateTime @default(now())
+  endDate   DateTime?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model AttendanceRecord {
+  id          String   @id @default(cuid())
+  studentId   String
+  student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  batchId     String
+  batch       Batch    @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  date        DateTime
+  present     Boolean  @default(true)
+  markedById  String?
+  markedBy    User?    @relation("MarkedBy", fields: [markedById], references: [id], onDelete: SetNull)
+  notes       String?
+  createdAt   DateTime @default(now())
+
+  @@unique([studentId, batchId, date])
+}
+
+// ─── Fees / Payments ─────────────────────────────────────────────────────────
+
+model FeePlan {
+  id        String      @id @default(cuid())
+  programId String
+  program   Program     @relation(fields: [programId], references: [id], onDelete: Cascade)
+  name      String
+  interval  FeeInterval
+  amountInr Int
+  inclusions String?
+  isPopular Boolean     @default(false)
+  isActive  Boolean     @default(true)
+  sortOrder Int         @default(0)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  payments Payment[]
+}
+
+model Payment {
+  id          String        @id @default(cuid())
+  studentId   String
+  student     Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  feePlanId   String?
+  feePlan     FeePlan?      @relation(fields: [feePlanId], references: [id], onDelete: SetNull)
+  amountInr   Int
+  method      PaymentMethod @default(CASH)
+  status      PaymentStatus @default(PENDING)
+  dueDate     DateTime?
+  paidAt      DateTime?
+  receiptNo   String?       @unique
+  notes       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+// ─── CMS Content ─────────────────────────────────────────────────────────────
+
+model Testimonial {
+  id          String   @id @default(cuid())
+  studentName String
+  photoUrl    String?
+  achievement String?
+  quote       String
+  parentName  String?
+  isPublished Boolean  @default(false)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model GalleryItem {
+  id        String          @id @default(cuid())
+  title     String?
+  imageUrl  String
+  category  GalleryCategory @default(TRAINING)
+  altText   String?
+  isPublished Boolean       @default(false)
+  sortOrder Int             @default(0)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+}
+
+model Faq {
+  id          String   @id @default(cuid())
+  question    String
+  answer      String
+  isPublished Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SiteSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   // JSON string for complex values
+  updatedAt DateTime @updatedAt
+}

@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# VMK Tennis Academy (VMKTA)
 
-## Getting Started
+Public marketing site + admin CRM for VMK Tennis Academy.
 
-First, run the development server:
+## Stack
+
+- Next.js 14 (App Router) + TypeScript
+- Tailwind CSS + shadcn/ui
+- Prisma 7 + SQLite (local) / PostgreSQL-ready
+- Auth.js (NextAuth v5) — credentials + roles (wired in milestone 4)
+
+## Getting started
 
 ```bash
+cp .env.example .env
+npm install
+npx prisma migrate dev
+npm run db:seed
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Site: http://localhost:3000  
+- Admin login stub: http://localhost:3000/admin/login  
+- Seeded admin: `admin@vmkta.com` / value of `ADMIN_PASSWORD` in `.env`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Brand tokens
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Token | Value |
+|-------|-------|
+| Deep green | `#0B3D2E` (`--vmk-green` / `primary`) |
+| Lime accent | `#C6F432` (`--vmk-lime` / `accent`) |
+| Off-white | `#FAFAF7` (`--vmk-cream` / `background`) |
 
-## Learn More
+## Milestones
 
-To learn more about Next.js, take a look at the following resources:
+1. ✅ Scaffold + theme + Prisma schema/seed + shadcn
+2. ✅ Public homepage (DB-backed sections, SEO, program pages)
+3. ✅ Lead-capture forms (Zod, honeypot, rate limit, email notify)
+4. Auth + admin shell
+5. Leads module
+6. Students / batches / attendance
+7. Payments
+8. CMS content
+9. Reports + polish
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Hero media
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Drop files into:
+- `public/videos/hero.mp4` — autoplays when available (skipped on slow connections / reduced motion)
+- Or set `hero.posterUrl` / `hero.videoUrl` via site settings
 
-## Deploy on Vercel
+### Lead forms
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Trial → `Lead` with `source = TRIAL_BOOKING`
+- Enquiry → `Lead` with `source = ENQUIRY`
+- Admin notified via `sendEmail()` (console in dev; Resend when `EMAIL_PROVIDER=resend`)
+- Rate limit: 5 submissions / 15 min / IP
+- Honeypot field `website` silently succeeds for bots
