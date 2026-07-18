@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Accordion,
   AccordionContent,
@@ -16,6 +18,8 @@ type FaqSectionProps = {
 };
 
 export function FaqSection({ faqs }: FaqSectionProps) {
+  if (faqs.length === 0) return null;
+
   return (
     <section id="faq" className="scroll-mt-20 py-20 sm:py-24">
       <div className="mx-auto max-w-3xl px-4 sm:px-6">
@@ -26,9 +30,12 @@ export function FaqSection({ faqs }: FaqSectionProps) {
           <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-vmk-ink sm:text-4xl">
             Answers before you step on court
           </h2>
+          <p className="mt-3 text-muted-foreground">
+            Common questions from parents and new players — before you book a trial.
+          </p>
         </div>
 
-        <Accordion className="mt-10">
+        <Accordion multiple className="mt-10">
           {faqs.map((faq) => (
             <AccordionItem key={faq.id} value={faq.id}>
               <AccordionTrigger className="py-4 text-base font-medium text-vmk-ink hover:no-underline">

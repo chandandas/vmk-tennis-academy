@@ -51,13 +51,13 @@ export type SiteSettingsMap = {
 };
 
 export const NAV_LINKS = [
-  { href: "#about", label: "About" },
-  { href: "#programs", label: "Programs" },
-  { href: "#coaches", label: "Coaches" },
-  { href: "#schedule", label: "Schedule" },
-  { href: "#pricing", label: "Pricing" },
-  { href: "#faq", label: "FAQ" },
-  { href: "#contact", label: "Contact" },
+  { href: "/#about", label: "About" },
+  { href: "/#programs", label: "Programs" },
+  { href: "/#coaches", label: "Coaches" },
+  { href: "/#schedule", label: "Schedule" },
+  { href: "/#pricing", label: "Pricing" },
+  { href: "/faq", label: "FAQ" },
+  { href: "/#contact", label: "Contact" },
 ] as const;
 
 export function whatsappHref(phone: string, message?: string) {

@@ -154,16 +154,81 @@ export async function getPublicTestimonials() {
   }
 }
 
+/** Shown when DB has no FAQs or is unreachable (e.g. Vercel misconfigured DATABASE_URL). */
+export const DEFAULT_PUBLIC_FAQS = [
+  {
+    id: "fallback-1",
+    question: "At what age can my child start?",
+    answer:
+      "We welcome kids from age 5. Our Beginner program is designed for first-timers with age-appropriate drills.",
+  },
+  {
+    id: "fallback-2",
+    question: "What should we bring to the first class?",
+    answer:
+      "Comfortable sportswear, non-marking tennis shoes, a water bottle, and a towel. A racquet is helpful but not required for beginners.",
+  },
+  {
+    id: "fallback-3",
+    question: "Do you provide racquets?",
+    answer:
+      "Yes — demo racquets are available for trial classes and beginners. We can also advise on buying the right racquet later.",
+  },
+  {
+    id: "fallback-4",
+    question: "How does the free trial work?",
+    answer:
+      "Book a free trial online or via WhatsApp. We'll place your child in an age-appropriate batch for one session so you can experience our coaching.",
+  },
+  {
+    id: "fallback-5",
+    question: "How are fees structured?",
+    answer:
+      "Each program offers monthly and quarterly plans. Quarterly plans include savings and priority benefits. A free trial is available before enrolment.",
+  },
+  {
+    id: "fallback-6",
+    question: "Can we change batches later?",
+    answer:
+      "Yes, subject to capacity. Speak with front desk and we'll try to accommodate preferred slots and coaches.",
+  },
+  {
+    id: "fallback-7",
+    question: "What is your rain / weather policy?",
+    answer:
+      "Outdoor sessions cancelled due to rain are rescheduled or converted to indoor fitness/technique sessions when possible.",
+  },
+  {
+    id: "fallback-8",
+    question: "Do you support tournament participation?",
+    answer:
+      "Yes — especially Semi-Advanced and Advanced players. We help with tournament selection, prep, and on-court support where possible.",
+  },
+  {
+    id: "fallback-9",
+    question: "How do parents get progress updates?",
+    answer:
+      "Coaches share periodic feedback; parents can request check-ins. Advanced players get structured progress notes.",
+  },
+  {
+    id: "fallback-10",
+    question: "Is there a parent waiting area?",
+    answer:
+      "Yes — parents are welcome to watch from designated areas. Please avoid interrupting sessions on court.",
+  },
+] as const;
+
 export async function getPublicFaqs() {
   try {
-    return await db.faq.findMany({
+    const rows = await db.faq.findMany({
       where: { isPublished: true },
       orderBy: { sortOrder: "asc" },
     });
+    if (rows.length > 0) return rows;
   } catch (err) {
-    console.error("[getPublicFaqs] DB unavailable:", err);
-    return [];
+    console.error("[getPublicFaqs] DB unavailable, using defaults:", err);
   }
+  return DEFAULT_PUBLIC_FAQS.map((f) => ({ ...f }));
 }
 
 export async function getPublicGallery() {
