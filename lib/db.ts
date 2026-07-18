@@ -12,7 +12,9 @@ function createPrismaClient() {
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
     throw new Error(
-      "DATABASE_URL is not set. Use a PostgreSQL URL (e.g. Neon) for local and Vercel."
+      "DATABASE_URL is not set. Use your Supabase Postgres URI " +
+        "(Project → Connect → Connection string → URI). " +
+        "It must start with postgresql:// not https://"
     );
   }
 
@@ -21,20 +23,32 @@ function createPrismaClient() {
     connectionString.includes("sqlite")
   ) {
     throw new Error(
-      "SQLite is not supported on Vercel. Set DATABASE_URL to a PostgreSQL connection string."
+      "SQLite is not supported. Set DATABASE_URL to your Supabase postgresql:// connection string."
     );
   }
+
+  if (connectionString.startsWith("http://") || connectionString.startsWith("https://")) {
+    throw new Error(
+      "DATABASE_URL looks like the Supabase API URL (https://….supabase.co). " +
+        "Prisma needs the Database URI from Connect → Connection string → URI " +
+        "(postgresql://postgres.…@….pooler.supabase.com:6543/postgres)."
+    );
+  }
+
+  const isSupabase =
+    connectionString.includes("supabase.co") ||
+    connectionString.includes("pooler.supabase.com");
 
   const pool =
     globalForPrisma.pgPool ??
     new Pool({
       connectionString,
-      // Neon / serverless-friendly
+      // Serverless / Supabase pooler: keep pool small
       max: 1,
       ssl:
         process.env.NODE_ENV === "production" ||
         connectionString.includes("sslmode=require") ||
-        connectionString.includes("neon.tech")
+        isSupabase
           ? { rejectUnauthorized: false }
           : undefined,
     });
@@ -48,8 +62,8 @@ function createPrismaClient() {
 }
 
 /**
- * Prisma client via PostgreSQL (`pg` driver).
- * Required for Vercel — SQLite cannot run in serverless.
+ * Prisma → Supabase PostgreSQL (via `pg` + connection pooler).
+ * App data (leads, programs, etc.) uses this client.
  */
 export const db = globalForPrisma.prisma ?? createPrismaClient();
 

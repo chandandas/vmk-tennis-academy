@@ -1,5 +1,5 @@
 // VMK Tennis Academy — Prisma schema
-// PostgreSQL for local + Vercel (Neon / Vercel Postgres / Supabase).
+// Database: Supabase PostgreSQL (connection via DATABASE_URL)
 
 generator client {
   provider = "prisma-client"

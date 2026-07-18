@@ -6,14 +6,19 @@ Public marketing site + admin CRM for VMK Tennis Academy.
 
 - Next.js 14 (App Router) + TypeScript
 - Tailwind CSS + shadcn/ui
-- Prisma 7 + SQLite (local) / PostgreSQL-ready
+- **Supabase PostgreSQL** via Prisma (`DATABASE_URL`)
+- `@supabase/supabase-js` helpers (API / Storage later)
 - Auth.js (NextAuth v5) — credentials + roles (wired in milestone 4)
 
-## Getting started
+## Getting started (Supabase)
+
+1. Create a project at [supabase.com](https://supabase.com)
+2. Copy into `.env` (see `.env.example`):
+   - `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` → **Settings → API**
+   - `DATABASE_URL` → **Connect → Connection string → URI** (must start with `postgresql://`)
+3. Then:
 
 ```bash
-cp .env.example .env
-# Set DATABASE_URL to a Neon/Postgres connection string (SQLite will not work on Vercel)
 npm install
 npx prisma migrate deploy
 npm run db:seed
@@ -21,28 +26,27 @@ npm run dev
 ```
 
 - Site: http://localhost:3000  
-- Admin login stub: http://localhost:3000/admin/login  
-- Seeded admin: `admin@vmkta.com` / value of `ADMIN_PASSWORD` in `.env`
+- Admin: http://localhost:3000/admin/login  
+- Seeded admin: `admin@vmkta.com` / `ADMIN_PASSWORD`
 
-## Deploy on Vercel (fix 500 SQLite error)
+## Deploy on Vercel
 
-Vercel cannot use SQLite (`Cannot open database because the directory does not exist`). Use **PostgreSQL**:
+Set these env vars (Production + Preview):
 
-1. Create a free DB at [Neon](https://console.neon.tech) (or Vercel Storage → Postgres).
-2. Copy the connection string (`postgresql://...?sslmode=require`).
-3. In **Vercel → Project → Settings → Environment Variables**, set:
-   - `DATABASE_URL` = your Postgres URL (Production + Preview)
-   - `AUTH_SECRET` = `openssl rand -base64 32`
-   - `NEXT_PUBLIC_SITE_URL` = `https://your-app.vercel.app`
-   - `ADMIN_PASSWORD` = (optional, for seeding)
-4. Redeploy (or push to GitHub). Build runs `prisma migrate deploy`.
-5. Seed once (local, pointing at the same `DATABASE_URL`):
+| Variable | From |
+|----------|------|
+| `DATABASE_URL` | Supabase → Connect → URI (pooler :6543) |
+| `NEXT_PUBLIC_SUPABASE_URL` | Settings → API |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Settings → API |
+| `AUTH_SECRET` | `openssl rand -base64 32` |
+| `NEXT_PUBLIC_SITE_URL` | your Vercel URL |
+
+Build runs `prisma migrate deploy`. Seed once:
 
 ```bash
 DATABASE_URL="postgresql://..." npm run db:seed
 ```
 
-After that, `/` should load without 500s.
 
 ## Brand tokens
 
