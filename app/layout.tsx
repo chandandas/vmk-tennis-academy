@@ -23,7 +23,10 @@ export const metadata: Metadata = {
   description:
     "Professional tennis coaching for kids, juniors & adults at VMK Tennis Academy. Book a free trial class today.",
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
+    process.env.NEXT_PUBLIC_SITE_URL ??
+      (process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : "http://localhost:3000")
   ),
   openGraph: {
     type: "website",

@@ -62,99 +62,134 @@ function parseJson<T>(value: string, fallback: T): T {
 }
 
 export async function getSiteSettings(): Promise<SiteSettingsMap> {
-  const rows = await db.siteSetting.findMany();
-  const map: SiteSettingsMap = { ...defaults };
+  try {
+    const rows = await db.siteSetting.findMany();
+    const map: SiteSettingsMap = { ...defaults };
 
-  for (const row of rows) {
-    switch (row.key) {
-      case "academyName":
-      case "tagline":
-      case "address":
-      case "phone":
-      case "whatsapp":
-      case "email":
-      case "mapEmbedUrl":
-      case "googleReviewsUrl":
-        map[row.key] = parseJson(row.value, defaults[row.key]);
-        break;
-      case "googleReviewCount":
-      case "googleRating":
-        map[row.key] = parseJson(row.value, defaults[row.key]);
-        break;
-      case "social":
-        map.social = parseJson(row.value, defaults.social);
-        break;
-      case "scheduleWindows":
-        map.scheduleWindows = parseJson(row.value, defaults.scheduleWindows);
-        break;
-      case "hero":
-        map.hero = parseJson(row.value, defaults.hero);
-        break;
-      case "about":
-        map.about = parseJson(row.value, defaults.about);
-        break;
-      case "whyChoose":
-        map.whyChoose = parseJson(row.value, defaults.whyChoose);
-        break;
-      case "notificationEmails":
-        map.notificationEmails = parseJson(
-          row.value,
-          defaults.notificationEmails
-        );
-        break;
-      default:
-        break;
+    for (const row of rows) {
+      switch (row.key) {
+        case "academyName":
+        case "tagline":
+        case "address":
+        case "phone":
+        case "whatsapp":
+        case "email":
+        case "mapEmbedUrl":
+        case "googleReviewsUrl":
+          map[row.key] = parseJson(row.value, defaults[row.key]);
+          break;
+        case "googleReviewCount":
+        case "googleRating":
+          map[row.key] = parseJson(row.value, defaults[row.key]);
+          break;
+        case "social":
+          map.social = parseJson(row.value, defaults.social);
+          break;
+        case "scheduleWindows":
+          map.scheduleWindows = parseJson(row.value, defaults.scheduleWindows);
+          break;
+        case "hero":
+          map.hero = parseJson(row.value, defaults.hero);
+          break;
+        case "about":
+          map.about = parseJson(row.value, defaults.about);
+          break;
+        case "whyChoose":
+          map.whyChoose = parseJson(row.value, defaults.whyChoose);
+          break;
+        case "notificationEmails":
+          map.notificationEmails = parseJson(
+            row.value,
+            defaults.notificationEmails
+          );
+          break;
+        default:
+          break;
+      }
     }
-  }
 
-  return map;
+    return map;
+  } catch (err) {
+    console.error("[getSiteSettings] DB unavailable, using defaults:", err);
+    return { ...defaults };
+  }
 }
 
 export async function getPublicPrograms() {
-  return db.program.findMany({
-    where: { isPublished: true },
-    include: {
-      feePlans: { where: { isActive: true }, orderBy: { sortOrder: "asc" } },
-    },
-    orderBy: { sortOrder: "asc" },
-  });
+  try {
+    return await db.program.findMany({
+      where: { isPublished: true },
+      include: {
+        feePlans: { where: { isActive: true }, orderBy: { sortOrder: "asc" } },
+      },
+      orderBy: { sortOrder: "asc" },
+    });
+  } catch (err) {
+    console.error("[getPublicPrograms] DB unavailable:", err);
+    return [];
+  }
 }
 
 export async function getPublicCoaches() {
-  return db.coach.findMany({
-    where: { isPublished: true },
-    orderBy: { sortOrder: "asc" },
-  });
+  try {
+    return await db.coach.findMany({
+      where: { isPublished: true },
+      orderBy: { sortOrder: "asc" },
+    });
+  } catch (err) {
+    console.error("[getPublicCoaches] DB unavailable:", err);
+    return [];
+  }
 }
 
 export async function getPublicTestimonials() {
-  return db.testimonial.findMany({
-    where: { isPublished: true },
-    orderBy: { sortOrder: "asc" },
-  });
+  try {
+    return await db.testimonial.findMany({
+      where: { isPublished: true },
+      orderBy: { sortOrder: "asc" },
+    });
+  } catch (err) {
+    console.error("[getPublicTestimonials] DB unavailable:", err);
+    return [];
+  }
 }
 
 export async function getPublicFaqs() {
-  return db.faq.findMany({
-    where: { isPublished: true },
-    orderBy: { sortOrder: "asc" },
-  });
+  try {
+    return await db.faq.findMany({
+      where: { isPublished: true },
+      orderBy: { sortOrder: "asc" },
+    });
+  } catch (err) {
+    console.error("[getPublicFaqs] DB unavailable:", err);
+    return [];
+  }
 }
 
 export async function getPublicGallery() {
-  return db.galleryItem.findMany({
-    where: { isPublished: true },
-    orderBy: { sortOrder: "asc" },
-  });
+  try {
+    return await db.galleryItem.findMany({
+      where: { isPublished: true },
+      orderBy: { sortOrder: "asc" },
+    });
+  } catch (err) {
+    console.error("[getPublicGallery] DB unavailable:", err);
+    return [];
+  }
 }
 
 export async function getPublicBatches() {
-  return db.batch.findMany({
-    where: { isActive: true },
-    include: {
-      program: true,
-      coach: true,
-    },
-    orderBy: [{ timeSlot: "asc" }, { startTime: "asc" }],
-  });
+  try {
+    return await db.batch.findMany({
+      where: { isActive: true },
+      include: {
+        program: true,
+        coach: true,
+      },
+      orderBy: [{ timeSlot: "asc" }, { startTime: "asc" }],
+    });
+  } catch (err) {
+    console.error("[getPublicBatches] DB unavailable:", err);
+    return [];
+  }
 }
