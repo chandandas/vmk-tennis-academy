@@ -1,5 +1,5 @@
 // VMK Tennis Academy — Prisma schema
-// SQLite locally; switch provider to "postgresql" for production.
+// PostgreSQL for local + Vercel (Neon / Vercel Postgres / Supabase).
 
 generator client {
   provider = "prisma-client"
@@ -7,7 +7,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
 
 // ─── Enums ───────────────────────────────────────────────────────────────────

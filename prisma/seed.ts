@@ -1,10 +1,18 @@
 import "dotenv/config";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../lib/generated/prisma/client";
 import bcrypt from "bcryptjs";
+import { Pool } from "pg";
 
-const url = process.env.DATABASE_URL ?? "file:./prisma/dev.db";
-const adapter = new PrismaBetterSqlite3({ url });
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString || connectionString.startsWith("file:")) {
+  throw new Error(
+    "Set DATABASE_URL to a PostgreSQL URL before seeding (SQLite is no longer used)."
+  );
+}
+
+const pool = new Pool({ connectionString });
+const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
@@ -513,4 +521,5 @@ main()
   })
   .finally(async () => {
     await prisma.$disconnect();
+    await pool.end();
   });

@@ -13,8 +13,9 @@ Public marketing site + admin CRM for VMK Tennis Academy.
 
 ```bash
 cp .env.example .env
+# Set DATABASE_URL to a Neon/Postgres connection string (SQLite will not work on Vercel)
 npm install
-npx prisma migrate dev
+npx prisma migrate deploy
 npm run db:seed
 npm run dev
 ```
@@ -22,6 +23,26 @@ npm run dev
 - Site: http://localhost:3000  
 - Admin login stub: http://localhost:3000/admin/login  
 - Seeded admin: `admin@vmkta.com` / value of `ADMIN_PASSWORD` in `.env`
+
+## Deploy on Vercel (fix 500 SQLite error)
+
+Vercel cannot use SQLite (`Cannot open database because the directory does not exist`). Use **PostgreSQL**:
+
+1. Create a free DB at [Neon](https://console.neon.tech) (or Vercel Storage → Postgres).
+2. Copy the connection string (`postgresql://...?sslmode=require`).
+3. In **Vercel → Project → Settings → Environment Variables**, set:
+   - `DATABASE_URL` = your Postgres URL (Production + Preview)
+   - `AUTH_SECRET` = `openssl rand -base64 32`
+   - `NEXT_PUBLIC_SITE_URL` = `https://your-app.vercel.app`
+   - `ADMIN_PASSWORD` = (optional, for seeding)
+4. Redeploy (or push to GitHub). Build runs `prisma migrate deploy`.
+5. Seed once (local, pointing at the same `DATABASE_URL`):
+
+```bash
+DATABASE_URL="postgresql://..." npm run db:seed
+```
+
+After that, `/` should load without 500s.
 
 ## Brand tokens
 
