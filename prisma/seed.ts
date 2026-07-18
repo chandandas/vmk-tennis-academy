@@ -60,7 +60,7 @@ async function main() {
     data: {
       email: "coach@vmkta.com",
       passwordHash: await bcrypt.hash("CoachPass1!", 12),
-      name: "Rahul Sharma",
+      name: "Vijay",
       role: "COACH",
       phone: "+919876543211",
     },
@@ -175,44 +175,47 @@ async function main() {
     });
   }
 
-  const coachRahul = await prisma.coach.create({
+  const coachVijay = await prisma.coach.create({
     data: {
       userId: coachUser.id,
-      name: "Rahul Sharma",
-      slug: "rahul-sharma",
+      name: "Vijay",
+      slug: "vijay",
       photoUrl: "/images/coaches/placeholder.jpg",
-      certifications: "ITF Level 1, AITA Certified",
-      playingBackground: "State-level junior competitor, 12+ years coaching",
-      specialization: "Junior development & fundamentals",
-      bio: "Rahul has coached hundreds of juniors from first racquet to tournament play.",
+      certifications: "Head Coach · Founder, VMK Tennis Academy",
+      playingBackground:
+        "Founded VMK Tennis Academy to bring professional coaching to every age and level.",
+      specialization: "Head Coach / Founder",
+      bio: "Vijay leads the academy's vision, curriculum, and high-performance pathway — building champions on and off the court.",
       isPublished: true,
       sortOrder: 1,
     },
   });
 
-  const coachAnanya = await prisma.coach.create({
+  const coachSambhu = await prisma.coach.create({
     data: {
-      name: "Ananya Reddy",
-      slug: "ananya-reddy",
+      name: "Sambhu",
+      slug: "sambhu",
       photoUrl: "/images/coaches/placeholder.jpg",
-      certifications: "ITF Level 2, PTR Professional",
-      playingBackground: "National-level player, former university captain",
-      specialization: "Advanced performance & mental conditioning",
-      bio: "Ananya specializes in tournament preparation and the mental side of tennis.",
+      certifications: "Senior Coach",
+      playingBackground:
+        "Experienced senior coach focused on technique, consistency, and competitive readiness.",
+      specialization: "Senior Coach",
+      bio: "Sambhu mentors juniors and intermediates with structured drills and match-play habits that stick.",
       isPublished: true,
       sortOrder: 2,
     },
   });
 
-  await prisma.coach.create({
+  const coachKabir = await prisma.coach.create({
     data: {
-      name: "Vikram Patel",
-      slug: "vikram-patel",
+      name: "Kabir",
+      slug: "kabir",
       photoUrl: "/images/coaches/placeholder.jpg",
-      certifications: "AITA Certified, Fitness Specialist",
-      playingBackground: "Club champion, adult coaching specialist",
-      specialization: "Adult programs & fitness tennis",
-      bio: "Vikram makes adult tennis fun, social, and results-driven.",
+      certifications: "Coach",
+      playingBackground:
+        "Hands-on court coach helping beginners and developing players build confidence early.",
+      specialization: "Coach",
+      bio: "Kabir brings energy and clear fundamentals to every session — ideal for first-timers and growing players.",
       isPublished: true,
       sortOrder: 3,
     },
@@ -223,7 +226,7 @@ async function main() {
       {
         name: "Beginner Morning A",
         programId: beginner.id,
-        coachId: coachRahul.id,
+        coachId: coachKabir.id,
         daysOfWeek: JSON.stringify(["MON", "WED", "FRI"]),
         timeSlot: "MORNING",
         startTime: "06:30",
@@ -234,7 +237,7 @@ async function main() {
       {
         name: "Intermediate Evening A",
         programId: intermediate.id,
-        coachId: coachRahul.id,
+        coachId: coachSambhu.id,
         daysOfWeek: JSON.stringify(["TUE", "THU", "SAT"]),
         timeSlot: "EVENING",
         startTime: "16:00",
@@ -245,7 +248,7 @@ async function main() {
       {
         name: "Semi-Advanced Evening",
         programId: semiAdv.id,
-        coachId: coachAnanya.id,
+        coachId: coachSambhu.id,
         daysOfWeek: JSON.stringify(["MON", "WED", "FRI"]),
         timeSlot: "EVENING",
         startTime: "17:30",
@@ -256,7 +259,7 @@ async function main() {
       {
         name: "Advanced Performance AM",
         programId: advanced.id,
-        coachId: coachAnanya.id,
+        coachId: coachVijay.id,
         daysOfWeek: JSON.stringify(["MON", "TUE", "WED", "THU", "FRI"]),
         timeSlot: "MORNING",
         startTime: "06:00",
@@ -267,7 +270,7 @@ async function main() {
       {
         name: "Adult Evening Social",
         programId: adult.id,
-        coachId: coachRahul.id,
+        coachId: coachVijay.id,
         daysOfWeek: JSON.stringify(["TUE", "THU"]),
         timeSlot: "EVENING",
         startTime: "18:00",

@@ -130,16 +130,48 @@ export async function getPublicPrograms() {
   }
 }
 
+/** Shown when DB has no coaches or is unreachable. */
+export const DEFAULT_PUBLIC_COACHES = [
+  {
+    id: "fallback-coach-vijay",
+    name: "Vijay",
+    photoUrl: null as string | null,
+    certifications: "Head Coach · Founder, VMK Tennis Academy",
+    playingBackground:
+      "Founded VMK Tennis Academy to bring professional coaching to every age and level.",
+    specialization: "Head Coach / Founder",
+  },
+  {
+    id: "fallback-coach-sambhu",
+    name: "Sambhu",
+    photoUrl: null as string | null,
+    certifications: "Senior Coach",
+    playingBackground:
+      "Experienced senior coach focused on technique, consistency, and competitive readiness.",
+    specialization: "Senior Coach",
+  },
+  {
+    id: "fallback-coach-kabir",
+    name: "Kabir",
+    photoUrl: null as string | null,
+    certifications: "Coach",
+    playingBackground:
+      "Hands-on court coach helping beginners and developing players build confidence early.",
+    specialization: "Coach",
+  },
+];
+
 export async function getPublicCoaches() {
   try {
-    return await db.coach.findMany({
+    const rows = await db.coach.findMany({
       where: { isPublished: true },
       orderBy: { sortOrder: "asc" },
     });
+    if (rows.length > 0) return rows;
   } catch (err) {
-    console.error("[getPublicCoaches] DB unavailable:", err);
-    return [];
+    console.error("[getPublicCoaches] DB unavailable, using defaults:", err);
   }
+  return DEFAULT_PUBLIC_COACHES.map((c) => ({ ...c }));
 }
 
 export async function getPublicTestimonials() {
