@@ -115,19 +115,96 @@ export async function getSiteSettings(): Promise<SiteSettingsMap> {
   }
 }
 
+/** Shown when DB has no programs or is unreachable. */
+export const DEFAULT_PUBLIC_PROGRAMS = [
+  {
+    id: "fallback-beginner",
+    name: "Beginner",
+    slug: "beginner",
+    ageGroup: "5–10 years",
+    focusAreas: "Fundamentals, coordination, fun drills",
+    sessionsPerWeek: 2,
+    description:
+      "Introduction to tennis for first-timers — grip, stance, and rally basics.",
+    isPublished: true,
+    sortOrder: 1,
+    feePlans: [] as {
+      id: string;
+      name: string;
+      interval: "MONTHLY" | "QUARTERLY";
+      amountInr: number;
+      inclusions: string | null;
+      isPopular: boolean;
+    }[],
+  },
+  {
+    id: "fallback-intermediate",
+    name: "Intermediate",
+    slug: "intermediate",
+    ageGroup: "8–14 years",
+    focusAreas: "Stroke consistency, court positioning",
+    sessionsPerWeek: 3,
+    description:
+      "Build consistent groundstrokes and develop match awareness.",
+    isPublished: true,
+    sortOrder: 2,
+    feePlans: [],
+  },
+  {
+    id: "fallback-semi",
+    name: "Semi-Advanced",
+    slug: "semi-advanced",
+    ageGroup: "10–16 years",
+    focusAreas: "Tactics, spin, competitive drills",
+    sessionsPerWeek: 4,
+    description:
+      "Bridge to competitive play with structured match practice.",
+    isPublished: true,
+    sortOrder: 3,
+    feePlans: [],
+  },
+  {
+    id: "fallback-advanced",
+    name: "Advanced Performance",
+    slug: "advanced-performance",
+    ageGroup: "12–18 years",
+    focusAreas: "Tournament prep, mental game, peak fitness",
+    sessionsPerWeek: 5,
+    description:
+      "High-performance pathway for tournament-bound juniors.",
+    isPublished: true,
+    sortOrder: 4,
+    feePlans: [],
+  },
+  {
+    id: "fallback-adult",
+    name: "Adult Program",
+    slug: "adult-program",
+    ageGroup: "18+ years",
+    focusAreas: "Fitness, social play, technique refresh",
+    sessionsPerWeek: 2,
+    description:
+      "Adults of all levels — learn, improve, and stay active.",
+    isPublished: true,
+    sortOrder: 5,
+    feePlans: [],
+  },
+];
+
 export async function getPublicPrograms() {
   try {
-    return await db.program.findMany({
+    const rows = await db.program.findMany({
       where: { isPublished: true },
       include: {
         feePlans: { where: { isActive: true }, orderBy: { sortOrder: "asc" } },
       },
       orderBy: { sortOrder: "asc" },
     });
+    if (rows.length > 0) return rows;
   } catch (err) {
-    console.error("[getPublicPrograms] DB unavailable:", err);
-    return [];
+    console.error("[getPublicPrograms] DB unavailable, using defaults:", err);
   }
+  return DEFAULT_PUBLIC_PROGRAMS.map((p) => ({ ...p, feePlans: [...p.feePlans] }));
 }
 
 /** Shown when DB has no coaches or is unreachable. */
