@@ -43,14 +43,9 @@ function createPrismaClient() {
     globalForPrisma.pgPool ??
     new Pool({
       connectionString,
-      // Serverless / Supabase pooler: keep pool small
+      // Serverless / Supabase: keep pool small; allow Supabase SSL cert chain
       max: 1,
-      ssl:
-        process.env.NODE_ENV === "production" ||
-        connectionString.includes("sslmode=require") ||
-        isSupabase
-          ? { rejectUnauthorized: false }
-          : undefined,
+      ssl: { rejectUnauthorized: false },
     });
 
   if (process.env.NODE_ENV !== "production") {
