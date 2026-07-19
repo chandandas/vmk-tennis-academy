@@ -12,7 +12,8 @@ const credentialsSchema = z.object({
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
-  secret: process.env.AUTH_SECRET,
+  // Auth.js v5 reads AUTH_SECRET; also accept NEXTAUTH_SECRET for older setups
+  secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
   trustHost: true,
   providers: [
     Credentials({
