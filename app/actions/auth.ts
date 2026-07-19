@@ -32,20 +32,21 @@ export async function loginAction(
     return { ok: true, message: "Signed in" };
   } catch (err) {
     if (err instanceof AuthError) {
-      // Configuration = missing/invalid AUTH_SECRET (common on Vercel)
-      if (err.type === "Configuration") {
+      const type = String(err.type);
+      // Missing/invalid AUTH_SECRET often surfaces as Configuration
+      if (type === "Configuration" || type.includes("Configuration")) {
         return {
           ok: false,
           message:
             "Server misconfigured: set AUTH_SECRET on Vercel and redeploy.",
         };
       }
-      if (err.type === "CredentialsSignin") {
+      if (type === "CredentialsSignin") {
         return { ok: false, message: "Invalid email or password." };
       }
       return {
         ok: false,
-        message: `Sign-in failed (${err.type}). Check server auth configuration.`,
+        message: `Sign-in failed (${type}). Check server auth configuration.`,
       };
     }
     throw err;
