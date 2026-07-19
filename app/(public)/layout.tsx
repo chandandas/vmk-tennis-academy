@@ -38,6 +38,10 @@ export default async function PublicLayout({
       <WhatsAppFloat
         phone={settings.whatsapp}
         academyName={settings.academyName}
+        programOptions={programs.map((p) => ({
+          name: p.name,
+          slug: p.slug,
+        }))}
       />
     </>
   );

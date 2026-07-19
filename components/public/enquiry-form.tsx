@@ -42,19 +42,29 @@ function FieldError({
 
 export function EnquiryForm({
   programOptions,
+  idPrefix = "enquiry",
+  showAnchor = true,
+  className,
 }: {
   programOptions: ProgramOption[];
+  idPrefix?: string;
+  showAnchor?: boolean;
+  className?: string;
 }) {
   const [state, formAction] = useFormState<ActionResult | null, FormData>(
     submitEnquiry,
     null
   );
+  const pid = idPrefix;
 
   if (state?.ok) {
     return (
       <div
-        id="enquire"
-        className="scroll-mt-24 border border-vmk-lime bg-white p-6 sm:p-8"
+        id={showAnchor ? "enquire" : undefined}
+        className={cn(
+          "scroll-mt-24 border border-vmk-lime bg-white p-6 sm:p-8",
+          className
+        )}
         role="status"
       >
         <CheckCircle2 className="size-10 text-vmk-green" aria-hidden />
@@ -70,8 +80,11 @@ export function EnquiryForm({
 
   return (
     <div
-      id="enquire"
-      className="scroll-mt-24 border border-border bg-white p-6 sm:p-8"
+      id={showAnchor ? "enquire" : undefined}
+      className={cn(
+        "scroll-mt-24 border border-border bg-white p-6 sm:p-8",
+        className
+      )}
     >
       <h3 className="font-display text-xl font-bold text-vmk-green">
         Enquire now
@@ -91,9 +104,9 @@ export function EnquiryForm({
 
       <form action={formAction} className="relative mt-6 space-y-4" noValidate>
         <div className="pointer-events-none absolute -left-[9999px] opacity-0" aria-hidden>
-          <label htmlFor="enquiry-website">Website</label>
+          <label htmlFor={`${pid}-website`}>Website</label>
           <input
-            id="enquiry-website"
+            id={`${pid}-website`}
             name="website"
             type="text"
             tabIndex={-1}
@@ -102,16 +115,16 @@ export function EnquiryForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="enquiry-name">Name</Label>
-          <Input id="enquiry-name" name="name" required autoComplete="name" />
+          <Label htmlFor={`${pid}-name`}>Name</Label>
+          <Input id={`${pid}-name`} name="name" required autoComplete="name" />
           <FieldError errors={fieldErrors} name="name" />
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="enquiry-phone">Phone</Label>
+            <Label htmlFor={`${pid}-phone`}>Phone</Label>
             <Input
-              id="enquiry-phone"
+              id={`${pid}-phone`}
               name="phone"
               type="tel"
               inputMode="numeric"
@@ -122,9 +135,9 @@ export function EnquiryForm({
             <FieldError errors={fieldErrors} name="phone" />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="enquiry-email">Email (optional)</Label>
+            <Label htmlFor={`${pid}-email`}>Email (optional)</Label>
             <Input
-              id="enquiry-email"
+              id={`${pid}-email`}
               name="email"
               type="email"
               autoComplete="email"
@@ -134,9 +147,9 @@ export function EnquiryForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="enquiry-program">Program interest</Label>
+          <Label htmlFor={`${pid}-program`}>Program interest</Label>
           <select
-            id="enquiry-program"
+            id={`${pid}-program`}
             name="programInterest"
             defaultValue=""
             className="flex h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
@@ -152,8 +165,8 @@ export function EnquiryForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="enquiry-message">Message</Label>
-          <Textarea id="enquiry-message" name="message" rows={3} required />
+          <Label htmlFor={`${pid}-message`}>Message</Label>
+          <Textarea id={`${pid}-message`} name="message" rows={3} required />
           <FieldError errors={fieldErrors} name="message" />
         </div>
 

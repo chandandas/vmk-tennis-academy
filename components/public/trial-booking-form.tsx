@@ -15,6 +15,11 @@ type ProgramOption = { name: string; slug: string };
 type TrialBookingFormProps = {
   programOptions: ProgramOption[];
   defaultProgram?: string;
+  /** Unique prefix for field ids when the form appears more than once on a page */
+  idPrefix?: string;
+  /** When false, omit the page-anchor id (use inside modals) */
+  showAnchor?: boolean;
+  className?: string;
 };
 
 function SubmitButton({ label }: { label: string }) {
@@ -48,17 +53,24 @@ function FieldError({
 export function TrialBookingForm({
   programOptions,
   defaultProgram,
+  idPrefix = "trial",
+  showAnchor = true,
+  className,
 }: TrialBookingFormProps) {
   const [state, formAction] = useFormState<ActionResult | null, FormData>(
     submitTrialBooking,
     null
   );
+  const pid = idPrefix;
 
   if (state?.ok) {
     return (
       <div
-        id="book-trial"
-        className="scroll-mt-24 border border-vmk-lime bg-white p-6 sm:p-8"
+        id={showAnchor ? "book-trial" : undefined}
+        className={cn(
+          "scroll-mt-24 border border-vmk-lime bg-white p-6 sm:p-8",
+          className
+        )}
         role="status"
       >
         <CheckCircle2 className="size-10 text-vmk-green" aria-hidden />
@@ -74,8 +86,11 @@ export function TrialBookingForm({
 
   return (
     <div
-      id="book-trial"
-      className="scroll-mt-24 border border-border bg-white p-6 sm:p-8"
+      id={showAnchor ? "book-trial" : undefined}
+      className={cn(
+        "scroll-mt-24 border border-border bg-white p-6 sm:p-8",
+        className
+      )}
     >
       <h3 className="font-display text-xl font-bold text-vmk-green">
         Book a free trial class
@@ -92,9 +107,9 @@ export function TrialBookingForm({
 
       <form action={formAction} className="relative mt-6 space-y-4" noValidate>
         <div className="pointer-events-none absolute -left-[9999px] opacity-0" aria-hidden>
-          <label htmlFor="trial-website">Website</label>
+          <label htmlFor={`${pid}-website`}>Website</label>
           <input
-            id="trial-website"
+            id={`${pid}-website`}
             name="website"
             type="text"
             tabIndex={-1}
@@ -104,22 +119,22 @@ export function TrialBookingForm({
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="trial-parent">Parent name</Label>
-            <Input id="trial-parent" name="parentName" required autoComplete="name" />
+            <Label htmlFor={`${pid}-parent`}>Parent name</Label>
+            <Input id={`${pid}-parent`} name="parentName" required autoComplete="name" />
             <FieldError errors={fieldErrors} name="parentName" />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="trial-player">Player name</Label>
-            <Input id="trial-player" name="playerName" required />
+            <Label htmlFor={`${pid}-player`}>Player name</Label>
+            <Input id={`${pid}-player`} name="playerName" required />
             <FieldError errors={fieldErrors} name="playerName" />
           </div>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="trial-phone">Phone</Label>
+            <Label htmlFor={`${pid}-phone`}>Phone</Label>
             <Input
-              id="trial-phone"
+              id={`${pid}-phone`}
               name="phone"
               type="tel"
               inputMode="numeric"
@@ -130,17 +145,17 @@ export function TrialBookingForm({
             <FieldError errors={fieldErrors} name="phone" />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="trial-email">Email (optional)</Label>
-            <Input id="trial-email" name="email" type="email" autoComplete="email" />
+            <Label htmlFor={`${pid}-email`}>Email (optional)</Label>
+            <Input id={`${pid}-email`} name="email" type="email" autoComplete="email" />
             <FieldError errors={fieldErrors} name="email" />
           </div>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="trial-age">Player age</Label>
+            <Label htmlFor={`${pid}-age`}>Player age</Label>
             <Input
-              id="trial-age"
+              id={`${pid}-age`}
               name="playerAge"
               type="number"
               min={4}
@@ -150,9 +165,9 @@ export function TrialBookingForm({
             <FieldError errors={fieldErrors} name="playerAge" />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="trial-program">Program interest</Label>
+            <Label htmlFor={`${pid}-program`}>Program interest</Label>
             <select
-              id="trial-program"
+              id={`${pid}-program`}
               name="programInterest"
               required
               defaultValue={defaultProgram ?? ""}
@@ -192,8 +207,8 @@ export function TrialBookingForm({
         </fieldset>
 
         <div className="space-y-2">
-          <Label htmlFor="trial-message">Message (optional)</Label>
-          <Textarea id="trial-message" name="message" rows={3} />
+          <Label htmlFor={`${pid}-message`}>Message (optional)</Label>
+          <Textarea id={`${pid}-message`} name="message" rows={3} />
           <FieldError errors={fieldErrors} name="message" />
         </div>
 
