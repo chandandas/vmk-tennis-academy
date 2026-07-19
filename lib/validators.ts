@@ -72,3 +72,24 @@ export function formDataToObject(formData: FormData): Record<string, string> {
   });
   return obj;
 }
+
+/** Adapt server actions that return ActionResult for HTML form `action` (must return void). */
+export function asFormAction(
+  action: (formData: FormData) => Promise<unknown>
+): (formData: FormData) => Promise<void> {
+  return async (formData) => {
+    await action(formData);
+  };
+}
+
+/** For (prev, formData) server actions used directly on forms. */
+export function asStatefulFormAction(
+  action: (
+    prev: ActionResult | null,
+    formData: FormData
+  ) => Promise<ActionResult | void>
+): (formData: FormData) => Promise<void> {
+  return async (formData) => {
+    await action(null, formData);
+  };
+}

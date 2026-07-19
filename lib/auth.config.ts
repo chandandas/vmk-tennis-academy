@@ -1,50 +1,28 @@
 import type { NextAuthConfig } from "next-auth";
-import Credentials from "next-auth/providers/credentials";
-import { z } from "zod";
 
 /**
- * Auth.js / NextAuth config (credentials + roles).
- * Full credentials verify against Prisma is wired in milestone 4.
- * This stub establishes the shape so middleware and types compile.
+ * Edge-safe Auth.js config (used by middleware).
+ * Credentials + Prisma live in `lib/auth.ts`.
  */
 
 export const userRoles = ["ADMIN", "COACH", "FRONT_DESK"] as const;
 export type UserRole = (typeof userRoles)[number];
 
-const credentialsSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
-});
-
 export const authConfig = {
   pages: {
     signIn: "/admin/login",
   },
-  providers: [
-    Credentials({
-      name: "credentials",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
-      },
-      async authorize(credentials) {
-        const parsed = credentialsSchema.safeParse(credentials);
-        if (!parsed.success) return null;
-
-        // Milestone 4: look up User + bcrypt.compare
-        // Returning null keeps login closed until auth is fully wired.
-        void parsed.data;
-        return null;
-      },
-    }),
-  ],
+  providers: [],
   callbacks: {
     authorized({ auth, request }) {
       const isLoggedIn = !!auth?.user;
-      const isAdminRoute = request.nextUrl.pathname.startsWith("/admin");
       const isLogin = request.nextUrl.pathname === "/admin/login";
+      const isAdminRoute = request.nextUrl.pathname.startsWith("/admin");
 
-      if (isLogin) return true;
+      if (isLogin) {
+        if (isLoggedIn) return Response.redirect(new URL("/admin", request.nextUrl));
+        return true;
+      }
       if (isAdminRoute) return isLoggedIn;
       return true;
     },
