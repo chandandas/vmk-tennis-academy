@@ -13,6 +13,8 @@ export const authConfig = {
     signIn: "/admin/login",
   },
   providers: [],
+  secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
+  trustHost: true,
   callbacks: {
     authorized({ auth, request }) {
       const isLoggedIn = !!auth?.user;
